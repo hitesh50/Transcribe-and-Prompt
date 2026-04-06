@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 *.egg-info/
+*.tsbuildinfo
 *.pyc
 *.pyo
 *.pyd
@@ -11,6 +12,8 @@ dist/
 build/
 frontend/node_modules/
 frontend/dist/
+frontend/vite.config.js
+frontend/vite.config.d.ts
 app/static/*
 !app/static/.gitkeep
 data/sessions/*

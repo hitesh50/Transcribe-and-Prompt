@@ -1,0 +1,29 @@
+LocalRiskInsights for Windows
+=============================
+
+This package is designed for the simplest local launch path:
+Docker Desktop on Windows.
+
+What you need before launching
+------------------------------
+1. Install Docker Desktop for Windows.
+2. Start Docker Desktop and wait until it says it is running.
+3. Make sure you have your OpenRouter API key ready.
+
+How to start
+------------
+1. Double-click Launch-LocalRiskInsights.bat
+2. If asked, paste your OpenRouter API key
+3. Wait for Docker to build and start the app
+4. Open http://localhost:8000 if the browser does not open automatically
+
+How to stop
+-----------
+Double-click Stop-LocalRiskInsights.bat
+
+Notes
+-----
+- The first startup can take a few minutes because Docker builds the containers.
+- Your transcript and insight files are stored in the local data folder next to this file.
+- If Docker Desktop is not installed, the launcher will stop and tell you to install it.
+

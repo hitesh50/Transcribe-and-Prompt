@@ -31,6 +31,62 @@ docker compose up --build
 
 4. Open [http://localhost:8000](http://localhost:8000).
 
+## Windows Package
+
+For non-technical Windows users, you can generate a starter zip that includes double-click launch scripts:
+
+```bash
+python scripts/build_windows_bundle.py
+```
+
+That creates:
+
+- `dist/LocalRiskInsights-Windows/`
+- `dist/LocalRiskInsights-Windows.zip`
+
+Inside the zip, the Windows user can:
+
+1. Install and start Docker Desktop
+2. Double-click `Launch-LocalRiskInsights.bat`
+3. Paste their OpenRouter API key when prompted
+4. Open `http://localhost:8000`
+
+To stop the app later, they can double-click `Stop-LocalRiskInsights.bat`.
+
+## Windows Portable Zip
+
+If the Windows user does not want Docker Desktop, generate the portable zip instead:
+
+```bash
+python scripts/build_windows_portable_bundle.py
+```
+
+That creates:
+
+- `dist/LocalRiskInsights-Windows-Portable/`
+- `dist/LocalRiskInsights-Windows-Portable.zip`
+
+The portable bundle includes:
+
+- a prebuilt frontend served from FastAPI
+- the application source
+- a bundled Windows embeddable Python 3.11.9 zip
+- a bundled `pip.pyz`
+- a bundled FFmpeg essentials zip
+- a local wheelhouse of Windows Python dependencies
+- double-click launch and stop scripts
+
+The Windows user can then:
+
+1. Unzip `LocalRiskInsights-Windows-Portable.zip`
+2. Double-click `Launch-LocalRiskInsights-Portable.bat`
+3. Paste their OpenRouter API key
+4. Wait for first-run setup to finish
+5. Use the app at `http://127.0.0.1:8000`
+
+This portable path does not require Docker Desktop, Python, or Node on the Windows machine.
+The first actual transcription may still download the Whisper model into the portable runtime cache.
+
 ## Configuration
 
 `config.yaml` stores non-secret settings:

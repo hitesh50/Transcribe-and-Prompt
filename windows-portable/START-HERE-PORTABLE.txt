@@ -1,0 +1,29 @@
+LocalRiskInsights Portable for Windows
+======================================
+
+This package does not need Docker Desktop.
+
+What you do
+-----------
+1. Unzip this folder anywhere you want
+2. Double-click Launch-LocalRiskInsights-Portable.bat
+3. Paste your OpenRouter API key when prompted
+4. Wait for first-run setup to finish
+5. Use the app at http://127.0.0.1:8000
+
+What happens on first run
+-------------------------
+- The package unpacks a bundled portable Python runtime
+- The package unpacks a bundled FFmpeg build
+- The package installs the bundled Python wheels locally inside this folder
+- The browser opens when the app is ready
+
+How to stop it
+--------------
+Double-click Stop-LocalRiskInsights-Portable.bat
+
+Important note
+--------------
+The first transcription may still need to download the Whisper model into the local runtime cache.
+That is normal. After that, the model stays inside this portable folder.
+
