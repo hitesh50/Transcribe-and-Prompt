@@ -1,0 +1,18 @@
+openrouter:
+  api_base: "https://openrouter.ai/api/v1"
+  default_model: "qwen/qwen3.6-plus-preview:free"
+  allowed_models:
+    - "qwen/qwen3.6-plus-preview:free"
+    - "meta-llama/llama-3.3-70b-instruct:free"
+  enable_paid_models: false
+transcription:
+  segment_seconds: 30
+  insight_interval_seconds: 120
+  diarization_model: "local-fallback"
+  whisper_model: "small"
+  device: "cpu"
+  compute_type: "int8"
+  local_diarization_model_path: ""
+storage:
+  sessions_dir: "./data/sessions"
+  insights_dir: "./data/insights"

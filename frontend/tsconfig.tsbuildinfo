@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/api.ts","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/insightlist.tsx","./src/components/liveaudiocontrols.tsx","./src/components/livetranscriptionwindow.tsx","./src/components/sessionfilelist.tsx","./src/pages/configpanel.tsx","./src/pages/prompttab.tsx","./src/pages/transcribetab.tsx"],"version":"5.9.3"}

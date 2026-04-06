@@ -1,0 +1,89 @@
+:root {
+  color-scheme: light;
+  --bg-start: #f4efe4;
+  --bg-end: #e5efe8;
+  --panel-bg: rgba(255, 255, 255, 0.8);
+  --panel-border: rgba(15, 23, 42, 0.08);
+  --panel-shadow: 0 18px 60px rgba(15, 23, 42, 0.08);
+  --text-strong: #102a24;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 145, 0.16), transparent 24rem),
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.18), transparent 26rem),
+    linear-gradient(135deg, var(--bg-start), var(--bg-end));
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  background: transparent;
+}
+
+.app-header {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.eyebrow {
+  margin-bottom: 0.5rem;
+}
+
+.status-panel,
+.panel-surface {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  backdrop-filter: blur(14px);
+}
+
+.transcript-code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: rgba(16, 42, 36, 0.96);
+  color: #ecfdf5;
+  font-size: 0.86rem;
+  min-height: 320px;
+}
+
+.session-card {
+  transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
+}
+
+.session-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(13, 148, 136, 0.35);
+}
+
+.session-card-active {
+  background: rgba(13, 148, 136, 0.08);
+  border-color: rgba(13, 148, 136, 0.42);
+}
+
+.insight-card {
+  background: rgba(248, 250, 252, 0.7);
+}
+
+.response-body {
+  white-space: pre-wrap;
+  line-height: 1.65;
+  color: var(--text-strong);
+}
+
+code {
+  font-family: "JetBrains Mono", "SFMono-Regular", monospace;
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    height: auto;
+  }
+}
+

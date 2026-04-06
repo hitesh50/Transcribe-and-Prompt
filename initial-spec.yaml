@@ -1,0 +1,211 @@
+Below is a **complete, ready‑to‑feed specification** for the OpenAI Codex (or any other code‑generation model) that captures **every requirement you listed**.  
+It is organized in a hierarchical **YAML** format because Codex reliably parses structured data, and each section contains:
+
+* **File‑level description** – what the file should do.  
+* **Key functions / classes** – signatures, responsibilities, and important implementation notes.  
+* **UI / routing layout** – how the frontend ties together.  
+* **Configuration & environment** – where secrets live, default values, and how they are loaded.  
+
+You can hand this file directly to Codex (e.g., via the “/codex” endpoint) and it will generate a full repository scaffold that you can then run locally.
+
+---
+
+## 📁 Codex Input Specification (YAML)
+
+```yaml
+project:
+  name: "LocalRiskInsights"
+  description: >
+    A self‑contained, locally‑deployable web application that records live audio,
+    performs Whisper transcription with speaker diarisation, stores per‑session
+    text files, and periodically sends the transcript to an OpenRouter LLM
+    (default: qwen3.6-plus) to generate risk‑focused insights.
+  language: "Python"
+  framework: "FastAPI + React (Vite)"
+  python_version: "3.11"
+  node_version: "20"
+  license: "MIT"
+
+environment:
+  secrets:
+    - name: "OPENROUTER_API_KEY"
+      description: "API key for OpenRouter"
+      required: true
+  config_file: "config.yaml"
+  default_config:
+    openrouter:
+      api_base: "https://openrouter.ai/api/v1"
+      default_model: "qwen3.6-plus"
+      allowed_models:
+        - "qwen3.6-plus"
+        - "openrouter/free"
+        - "meta-llama/llama-3.3-70b-instruct:free"
+      enable_paid_models: false   # UI switch toggles this
+    transcription:
+      segment_seconds: 30
+      insight_interval_seconds: 120
+      diarization_model: "pyannote/speaker-diarization"
+    storage:
+      sessions_dir: "./data/sessions"
+      insights_dir: "./data/insights"
+
+frontend:
+  framework: "React (TypeScript) + Vite"
+  ui_library: "Mantine"
+  routing:
+    - path: "/"
+      component: "HomePage"
+    - path: "/config"
+      component: "ConfigPanel"
+    - path: "/transcribe"
+      component: "TranscribeTab"
+    - path: "/prompt"
+      component: "PromptTab"
+  components:
+    ConfigPanel:
+      description: >
+        UI for OpenRouter configuration.
+      fields:
+        - name: apiKey
+          type: "password"
+          label: "OpenRouter API Key"
+          required: true
+        - name: model
+          type: "select"
+          label: "Model"
+          options_source: "config.openrouter.allowed_models"
+          default: "qwen3.6-plus"
+        - name: enablePaid
+          type: "switch"
+          label: "Enable Paid Models"
+    TranscribeTab:
+      description: >
+        Handles live audio capture, Whisper transcription, diarisation,
+        file storage, live scrolling view, and periodic insight generation.
+      subcomponents:
+        - LiveAudioControls (Start / Stop)
+        - LiveTranscriptionWindow (auto‑scroll)
+        - SessionFileList (view / delete)
+    PromptTab:
+      description: >
+        Helper UI to craft high‑quality prompts, send them to the selected
+        OpenRouter model, and display the response.
+      fields:
+        - name: systemPrompt
+          type: "textarea"
+          label: "System Prompt (optional)"
+        - name: userPrompt
+          type: "textarea"
+          label: "User Prompt"
+        - name: sendButton
+          type: "button"
+          label: "Send to Model"
+
+backend:
+  framework: "FastAPI"
+  structure:
+    - path: "app/main.py"
+      purpose: "FastAPI entry point, includes CORS, mounts static files"
+    - path: "app/config.py"
+      purpose: "Loads config.yaml, validates environment, provides getters"
+    - path: "app/models.py"
+      purpose: "Pydantic models for API payloads"
+    - path: "app/routes/config.py"
+      purpose: "GET/POST endpoints for configuration panel"
+    - path: "app/routes/transcribe.py"
+      purpose: >
+        - Manage session lifecycle (create, list, delete)
+        - Receive audio chunks (WebSocket)
+        - Trigger Whisper transcription + diarisation
+        - Append to per‑session text file
+        - Provide live transcription stream (Server‑Sent Events)
+        - Schedule insight generation every 2 min
+    - path: "app/routes/prompt.py"
+      purpose: "Endpoint to receive a prompt, forward to OpenRouter, return response"
+    - path: "app/services/whisper_service.py"
+      purpose: >
+        Wrapper around **WhisperKit** (or `whisper.cpp`/`faster-whisper`) that:
+        * Accepts 30‑second audio buffers
+        * Returns plain text with speaker tags from diarisation
+    - path: "app/services/diarization_service.py"
+      purpose: >
+        Uses **pyannote.audio** pre‑trained speaker‑diarization model.
+        Returns a list of `(speaker_id, start, end, text)` segments.
+    - path: "app/services/openrouter_service.py"
+      purpose: >
+        Handles HTTP calls to OpenRouter:
+        * Constructs system prompt for “Chief Risk Officer at Invesco Ltd.”
+        * Sends full transcript up to current time
+        * Returns generated insights (stored in insights_dir)
+    - path: "app/utils/scheduler.py"
+      purpose: >
+        Simple background scheduler using `asyncio.create_task` + `asyncio.sleep`
+        to run `generate_insights(session_id)` every `insight_interval_seconds`.
+    - path: "app/static/**"
+      purpose: "Compiled React bundle (served in production)."
+
+business_logic:
+  transcription_flow:
+    1. User clicks **Start** → front‑end opens a WebSocket to `/ws/transcribe/{session_id}`.
+    2. Browser captures audio via MediaRecorder, sends 30‑second PCM chunks (WAV/WEBM).
+    3. Backend receives chunk, passes to `WhisperService.transcribe(chunk)`.
+    4. Resulting text + speaker ID (from `DiarizationService`) is appended to
+       `sessions_dir/<session_id>.txt`.
+    5. Live transcription is streamed back to the UI via Server‑Sent Events.
+    6. Every 2 min a background coroutine calls
+       `OpenRouterService.generate_insights(session_id, full_transcript)`.
+    7. Insights are saved as `insights_dir/<session_id>_insight_<timestamp>.json`
+       and also pushed to the UI (optional push notification).
+
+  prompt_flow:
+    1. User fills system / user prompt fields.
+    2. Front‑end POSTs to `/api/prompt`.
+    3. Backend builds request payload:
+       ```json
+       {
+         "model": "<selected_model>",
+         "messages": [
+           {"role": "system", "content": systemPrompt},
+           {"role": "user", "content": userPrompt}
+         ],
+         "stream": false
+       }
+       ```
+    4. Response is returned and displayed.
+
+deployment:
+  docker:
+    files:
+      - Dockerfile
+      - docker-compose.yml
+    notes: |
+      * `Dockerfile` builds a multi‑stage image:
+        - Stage 1: node + vite builds React UI.
+        - Stage 2: python base installs `fastapi`, `uvicorn`, `whisperkit`,
+          `pyannote.audio`, `httpx`, etc., then copies built UI into `/app/static`.
+      * `docker-compose.yml` mounts a local `./data` volume for session & insight files.
+  start_commands:
+    - "docker compose up --build"
+    - "uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+testing:
+  unit:
+    - test_config.py (loads defaults, validates secrets)
+    - test_whisper_service.py (mock audio → verify text output)
+    - test_diarization_service.py (mock model → verify speaker tags)
+    - test_openrouter_service.py (mock HTTPX → verify payload)
+  integration:
+    - test_full_transcription_flow.py (uses websockets, asserts file creation)
+    - test_prompt_endpoint.py (end‑to‑end prompt -> response)
+
+documentation:
+  README.md:
+    sections:
+      - Project Overview
+      - Quick Start (Docker)
+      - Configuration (config.yaml & env vars)
+      - Architecture Diagram
+      - Development (npm/yarn, pipenv)
+      - License
+
+---

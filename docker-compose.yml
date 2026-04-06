@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: localriskinsights
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/srv/app/data
+      - ./config.yaml:/srv/app/config.yaml
+    restart: unless-stopped
+

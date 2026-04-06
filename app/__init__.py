@@ -1,0 +1,2 @@
+"""LocalRiskInsights application package."""
+
