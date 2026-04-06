@@ -1,0 +1,28 @@
+LocalRiskInsights for macOS
+===========================
+
+This launcher is meant for the Docker Desktop path on macOS.
+
+What you need
+-------------
+1. Install Docker Desktop for Mac
+2. Start Docker Desktop
+3. Have your OpenRouter API key ready
+
+How to start
+------------
+1. Double-click Launch-LocalRiskInsights.command
+2. If asked, paste your OpenRouter API key
+3. Wait for the Docker build and startup to finish
+4. The app opens at http://127.0.0.1:8000
+
+How to stop
+-----------
+Double-click Stop-LocalRiskInsights.command
+
+Notes
+-----
+- The first startup can take a few minutes.
+- The app keeps running after the launcher window closes.
+- Transcript and insight files are stored in the local data folder.
+

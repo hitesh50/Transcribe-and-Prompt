@@ -31,6 +31,24 @@ docker compose up --build
 
 4. Open [http://localhost:8000](http://localhost:8000).
 
+## macOS Double-Click Launcher
+
+For a Finder-friendly macOS launch path using Docker Desktop, use the files in [macos](/Users/hpatel/Codex/WebApp-Transcribe-and-Prompt/macos):
+
+- [Launch-LocalRiskInsights.command](/Users/hpatel/Codex/WebApp-Transcribe-and-Prompt/macos/Launch-LocalRiskInsights.command)
+- [Stop-LocalRiskInsights.command](/Users/hpatel/Codex/WebApp-Transcribe-and-Prompt/macos/Stop-LocalRiskInsights.command)
+- [START-HERE-MACOS.txt](/Users/hpatel/Codex/WebApp-Transcribe-and-Prompt/macos/START-HERE-MACOS.txt)
+
+The macOS user can:
+
+1. Install Docker Desktop for Mac
+2. Double-click `Launch-LocalRiskInsights.command`
+3. Paste their OpenRouter API key if prompted
+4. Wait for the build and startup to finish
+5. Use the app at `http://127.0.0.1:8000`
+
+To stop the app later, double-click `Stop-LocalRiskInsights.command`.
+
 ## Windows Package
 
 For non-technical Windows users, you can generate a starter zip that includes double-click launch scripts:

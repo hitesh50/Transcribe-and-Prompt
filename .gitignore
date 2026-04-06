@@ -5,6 +5,7 @@ __pycache__/
 .mypy_cache/
 *.egg-info/
 *.tsbuildinfo
+.DS_Store
 *.pyc
 *.pyo
 *.pyd
