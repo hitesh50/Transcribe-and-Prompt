@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field, field_validator
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-DEFAULT_CONFIG_PATH = ROOT_DIR / "config.yaml"
+DEFAULT_BASE_CONFIG_PATH = ROOT_DIR / "config.yaml"
+DEFAULT_RUNTIME_CONFIG_PATH = ROOT_DIR / "data" / "config.local.yaml"
 DEFAULT_ENV_PATH = ROOT_DIR / ".env"
 
 
@@ -78,9 +79,17 @@ class SettingsManager:
         config_path: Path | None = None,
         env_path: Path | None = None,
         root_dir: Path | None = None,
+        base_config_path: Path | None = None,
     ) -> None:
         self.root_dir = (root_dir or ROOT_DIR).resolve()
-        self.config_path = (config_path or DEFAULT_CONFIG_PATH).resolve()
+        runtime_config_path = config_path or (self.root_dir / DEFAULT_RUNTIME_CONFIG_PATH.relative_to(ROOT_DIR))
+        fallback_config_path = base_config_path or (
+            self.root_dir / DEFAULT_BASE_CONFIG_PATH.relative_to(ROOT_DIR)
+            if config_path is None
+            else runtime_config_path
+        )
+        self.config_path = runtime_config_path.resolve()
+        self.base_config_path = fallback_config_path.resolve()
         self.env_path = (env_path or DEFAULT_ENV_PATH).resolve()
         self._lock = RLock()
         self._cached_config: AppConfig | None = None
@@ -91,12 +100,14 @@ class SettingsManager:
             if self._cached_config is not None and not force_reload:
                 return self._cached_config
 
-            if not self.config_path.exists():
+            source_path = self.config_path if self.config_path.exists() else self.base_config_path
+
+            if not source_path.exists():
                 config = AppConfig()
                 self.save_config(config)
                 return config
 
-            raw_data = yaml.safe_load(self.config_path.read_text(encoding="utf-8")) or {}
+            raw_data = yaml.safe_load(source_path.read_text(encoding="utf-8")) or {}
             config = AppConfig.model_validate(raw_data)
 
             if config.openrouter.default_model not in config.openrouter.allowed_models:
@@ -112,6 +123,7 @@ class SettingsManager:
                 config.openrouter.allowed_models.insert(0, config.openrouter.default_model)
 
             payload = config.model_dump(mode="python")
+            self.config_path.parent.mkdir(parents=True, exist_ok=True)
             self.config_path.write_text(
                 yaml.safe_dump(payload, sort_keys=False),
                 encoding="utf-8",

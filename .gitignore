@@ -21,3 +21,4 @@ data/sessions/*
 !data/sessions/.gitkeep
 data/insights/*
 !data/insights/.gitkeep
+data/config.local.yaml

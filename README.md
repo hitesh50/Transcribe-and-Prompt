@@ -11,7 +11,7 @@ The repository ships as a FastAPI backend plus a React + Vite frontend. Sessions
 - A local diarization service is included with an honest fallback: without an offline diarization model path, segments are tagged as `Speaker 1`.
 - Transcript files are written to `data/sessions/`.
 - Insight files are written to `data/insights/`.
-- OpenRouter configuration is managed from the UI and persisted through `.env` plus `config.yaml`.
+- OpenRouter configuration is managed from the UI and persisted through `.env` plus `data/config.local.yaml`, with `config.yaml` kept as the tracked repo default.
 
 ## Quick Start (Docker)
 
@@ -107,7 +107,7 @@ The first actual transcription may still download the Whisper model into the por
 
 ## Configuration
 
-`config.yaml` stores non-secret settings:
+`config.yaml` stores the committed repo defaults for non-secret settings:
 
 - OpenRouter API base
 - Selected default model
@@ -116,6 +116,15 @@ The first actual transcription may still download the Whisper model into the por
 - Transcription chunk size
 - Insight interval
 - Storage directories
+
+`data/config.local.yaml` stores machine-local overrides written by the UI:
+
+- Selected default model
+- Allowed model list
+- Free-only vs paid routing
+- Any other non-secret settings you save from the Config tab
+
+If `data/config.local.yaml` does not exist yet, the app falls back to `config.yaml`.
 
 `.env` stores secrets:
 
@@ -201,7 +210,7 @@ pytest
 
 This repository intentionally does not require a Hugging Face token.
 
-If you want stronger diarization locally, point `transcription.local_diarization_model_path` in `config.yaml` at a locally available `pyannote.audio` pipeline directory and install the optional extra:
+If you want stronger diarization locally, point `transcription.local_diarization_model_path` in `data/config.local.yaml` at a locally available `pyannote.audio` pipeline directory and install the optional extra. If you want that path committed as a repo default instead, edit `config.yaml`:
 
 ```bash
 pip install -e ".[diarization]"
