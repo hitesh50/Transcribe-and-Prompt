@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Grid, Group, Paper, Stack, Text } from "@mantine/core";
+import { Badge, Grid, Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import {
+  IconClockHour4,
+  IconFileDescription,
+  IconWaveSine,
+} from "@tabler/icons-react";
 import { createSession, deleteSession, getSession, listSessions } from "../api";
 import { InsightList } from "../components/InsightList";
 import { LiveAudioControls } from "../components/LiveAudioControls";
@@ -247,33 +252,81 @@ export function TranscribeTab({ config }: TranscribeTabProps) {
     await refreshSessions();
   }
 
+  const transcript = sessionDetail?.transcript ?? "";
+  const transcriptLineCount = transcript.trim() ? transcript.trim().split(/\n+/).length : 0;
+  const sessionWordCount = transcript.trim() ? transcript.trim().split(/\s+/).length : 0;
+  const selectedSessionLabel = selectedSessionId ?? "Auto-create on record";
+
   return (
-    <Stack gap="lg">
-      <Paper withBorder radius="xl" p="lg" className="panel-surface">
-        <Stack gap="md">
-          <Group justify="space-between" align="flex-start">
+    <Stack gap="xl">
+      <Paper withBorder radius="xl" p="xl" className="panel-surface workspace-hero workspace-hero-accent">
+        <Stack gap="lg">
+          <Group justify="space-between" align="flex-start" gap="lg">
             <div>
-              <Text fw={700} size="lg">
-                Transcription workspace
-              </Text>
-              <Text c="dimmed" size="sm">
-                Docker-first live audio capture with file-based transcripts and background risk insight generation.
+              <Badge variant="outline" className="eyebrow">
+                Transcribe workspace
+              </Badge>
+              <Title order={2} className="section-title">
+                Capture the room, keep the text trail, and review insights as files.
+              </Title>
+              <Text c="dimmed" className="section-copy" maw={760}>
+                Browser audio is chunked, streamed, transcribed, and written to disk. Session files stay selectable on the left, while the main workspace stays focused on the currently active conversation.
               </Text>
             </div>
-            <Text c="dimmed" size="sm">
-              Speaker labels use a local fallback unless you provide an offline diarization model path.
-            </Text>
+            <Paper radius="lg" p="md" className="side-note-card">
+              <Stack gap={6}>
+                <Text fw={700} size="sm">
+                  Local diarization note
+                </Text>
+                <Text c="dimmed" size="sm">
+                  Speaker labels use the offline fallback unless you point the backend at a local diarization model path.
+                </Text>
+              </Stack>
+            </Paper>
           </Group>
 
-          <LiveAudioControls
-            isRecording={isRecording}
-            canStart={Boolean(config)}
-            isBusy={isBusy}
-            selectedSessionId={selectedSessionId}
-            segmentSeconds={config?.segment_seconds ?? 30}
-            onStart={startRecording}
-            onStop={stopRecording}
-          />
+          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+            <Paper radius="lg" p="md" className="metric-card">
+              <Group justify="space-between" align="flex-start">
+                <div>
+                  <Text className="metric-label">Capture state</Text>
+                  <Text className="metric-value">{isRecording ? "Recording live" : "Ready"}</Text>
+                </div>
+                <IconWaveSine size={20} className="metric-icon" />
+              </Group>
+              <Text size="sm" c="dimmed">
+                {isRecording
+                  ? "Audio is streaming into the active session now."
+                  : "Choose an existing session or let the next recording create one automatically."}
+              </Text>
+            </Paper>
+
+            <Paper radius="lg" p="md" className="metric-card">
+              <Group justify="space-between" align="flex-start">
+                <div>
+                  <Text className="metric-label">Current session</Text>
+                  <Text className="metric-value metric-value-compact">{selectedSessionLabel}</Text>
+                </div>
+                <IconFileDescription size={20} className="metric-icon" />
+              </Group>
+              <Text size="sm" c="dimmed">
+                {sessions.length} saved session{sessions.length === 1 ? "" : "s"} in the local workspace.
+              </Text>
+            </Paper>
+
+            <Paper radius="lg" p="md" className="metric-card">
+              <Group justify="space-between" align="flex-start">
+                <div>
+                  <Text className="metric-label">Insight cadence</Text>
+                  <Text className="metric-value">{config?.insight_interval_seconds ?? 120}s</Text>
+                </div>
+                <IconClockHour4 size={20} className="metric-icon" />
+              </Group>
+              <Text size="sm" c="dimmed">
+                {sessionDetail?.insights.length ?? 0} saved insight file{sessionDetail?.insights.length === 1 ? "" : "s"} for the selected session.
+              </Text>
+            </Paper>
+          </SimpleGrid>
         </Stack>
       </Paper>
 
@@ -292,6 +345,75 @@ export function TranscribeTab({ config }: TranscribeTabProps) {
 
         <Grid.Col span={{ base: 12, md: 8 }}>
           <Stack gap="lg">
+            <Paper withBorder radius="xl" p="lg" className="panel-surface">
+              <Stack gap="md">
+                <Group justify="space-between" align="flex-start" gap="md">
+                  <div>
+                    <Text fw={700} size="lg">
+                      Audio pipeline
+                    </Text>
+                    <Text c="dimmed" size="sm">
+                      Start recording when you want to append transcript chunks to the selected session.
+                    </Text>
+                  </div>
+                  <Group gap="xs">
+                    <Badge color={isRecording ? "red" : "teal"} variant="light">
+                      {isRecording ? "Live capture on" : "Standing by"}
+                    </Badge>
+                    <Badge variant="outline" color="gray">
+                      {config?.segment_seconds ?? 30}s chunks
+                    </Badge>
+                  </Group>
+                </Group>
+
+                <LiveAudioControls
+                  isRecording={isRecording}
+                  canStart={Boolean(config)}
+                  isBusy={isBusy}
+                  selectedSessionId={selectedSessionId}
+                  segmentSeconds={config?.segment_seconds ?? 30}
+                  onStart={startRecording}
+                  onStop={stopRecording}
+                />
+              </Stack>
+            </Paper>
+
+            <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+              <Paper radius="lg" p="md" className="sub-metric-card">
+                <Group justify="space-between">
+                  <Text fw={600}>Transcript lines</Text>
+                  <Badge variant="light" color="teal">
+                    {transcriptLineCount}
+                  </Badge>
+                </Group>
+                <Text size="sm" c="dimmed">
+                  Completed chunks are appended in order as the backend finishes each pass.
+                </Text>
+              </Paper>
+              <Paper radius="lg" p="md" className="sub-metric-card">
+                <Group justify="space-between">
+                  <Text fw={600}>Transcript words</Text>
+                  <Badge variant="light" color="blue">
+                    {sessionWordCount}
+                  </Badge>
+                </Group>
+                <Text size="sm" c="dimmed">
+                  A quick sense-check for whether you have enough material for a review pass.
+                </Text>
+              </Paper>
+              <Paper radius="lg" p="md" className="sub-metric-card">
+                <Group justify="space-between">
+                  <Text fw={600}>Saved insights</Text>
+                  <Badge variant="light" color="grape">
+                    {sessionDetail?.insights.length ?? 0}
+                  </Badge>
+                </Group>
+                <Text size="sm" c="dimmed">
+                  Refresh the insight list below whenever you want to pull the latest files from disk.
+                </Text>
+              </Paper>
+            </SimpleGrid>
+
             <LiveTranscriptionWindow transcript={sessionDetail?.transcript ?? ""} />
             <InsightList
               insights={sessionDetail?.insights ?? []}

@@ -26,10 +26,17 @@ export function SessionFileList({
   onDelete,
 }: SessionFileListProps) {
   return (
-    <Paper withBorder radius="lg" p="md" className="panel-surface">
-      <Stack gap="sm">
+    <Paper withBorder radius="xl" p="lg" className="panel-surface session-list-panel">
+      <Stack gap="md">
         <Group justify="space-between">
-          <Text fw={700}>Session files</Text>
+          <div>
+            <Text fw={700} size="lg">
+              Session files
+            </Text>
+            <Text c="dimmed" size="sm">
+              Keep the working set on the left so you can jump between saved transcripts quickly.
+            </Text>
+          </div>
           <Group gap="xs">
             <ActionIcon variant="subtle" onClick={() => void onRefresh()} aria-label="Refresh sessions">
               <IconRefresh size={16} />
@@ -41,9 +48,12 @@ export function SessionFileList({
         </Group>
 
         {sessions.length === 0 ? (
-          <Text c="dimmed" size="sm">
-            No sessions yet. Create one or start recording to begin.
-          </Text>
+          <div className="empty-state">
+            <Text fw={600}>No sessions yet</Text>
+            <Text c="dimmed" size="sm">
+              Create one manually or start recording to begin the first transcript file.
+            </Text>
+          </div>
         ) : (
           sessions.map((session) => {
             const isSelected = session.session_id === selectedSessionId;
@@ -66,6 +76,9 @@ export function SessionFileList({
                         {session.insight_count} insight{session.insight_count === 1 ? "" : "s"}
                       </Badge>
                     </Group>
+                    <Text fw={600} size="sm">
+                      {session.transcript_path.split("/").pop()}
+                    </Text>
                     <Text size="sm" c="dimmed">
                       Updated {formatDate(session.updated_at)}
                     </Text>
@@ -98,4 +111,3 @@ export function SessionFileList({
     </Paper>
   );
 }
-

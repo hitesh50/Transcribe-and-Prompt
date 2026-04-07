@@ -21,12 +21,12 @@ export function LiveAudioControls({
   onStop,
 }: LiveAudioControlsProps) {
   return (
-    <Stack gap="xs">
+    <Stack gap="md">
       <Group justify="space-between" align="center">
         <div>
           <Text fw={700}>Live capture</Text>
-          <Text c="dimmed" size="sm">
-            Browser audio is chunked into {segmentSeconds}-second WebM segments and streamed to the backend.
+          <Text c="dimmed" size="sm" maw={620}>
+            Browser audio is chunked into {segmentSeconds}-second WebM segments and streamed straight to the backend for file-backed transcription.
           </Text>
         </div>
         <Badge color={isRecording ? "red" : "gray"} variant="light">
@@ -34,14 +34,15 @@ export function LiveAudioControls({
         </Badge>
       </Group>
 
-      <Group>
+      <Group gap="sm" wrap="wrap" className="control-actions">
         <Button
           leftSection={<IconMicrophone size={16} />}
           onClick={() => void onStart()}
           loading={isBusy}
           disabled={!canStart || isRecording}
+          size="md"
         >
-          Start
+          Start capture
         </Button>
         <Button
           variant="light"
@@ -49,15 +50,16 @@ export function LiveAudioControls({
           leftSection={<IconPlayerStop size={16} />}
           onClick={onStop}
           disabled={!isRecording}
+          size="md"
         >
-          Stop
+          Stop capture
         </Button>
         {selectedSessionId ? (
-          <Text size="sm" c="dimmed">
+          <Badge variant="outline" color="gray">
             Active session: {selectedSessionId}
-          </Text>
+          </Badge>
         ) : (
-          <Text size="sm" c="dimmed">
+          <Text size="sm" c="dimmed" className="control-caption">
             A new session will be created automatically when recording starts.
           </Text>
         )}
