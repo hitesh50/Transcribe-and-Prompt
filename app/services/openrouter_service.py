@@ -129,7 +129,7 @@ class OpenRouterService:
 
         headers = {
             "Content-Type": "application/json",
-            "X-Title": "LocalRiskInsights",
+            "X-Title": "INSIGHTS@LOCAL",
         }
         if api_key:
             headers["Authorization"] = f"Bearer {api_key}"

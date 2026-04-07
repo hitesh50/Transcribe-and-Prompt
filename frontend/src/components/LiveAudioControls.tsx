@@ -26,7 +26,7 @@ export function LiveAudioControls({
         <div>
           <Text fw={700}>Live capture</Text>
           <Text c="dimmed" size="sm" maw={620}>
-            Browser audio is chunked into {segmentSeconds}-second WebM segments and streamed straight to the backend for file-backed transcription.
+            Browser audio streams to the backend every few seconds for transcript updates while the session stays open.
           </Text>
         </div>
         <Badge color={isRecording ? "red" : "gray"} variant="light">

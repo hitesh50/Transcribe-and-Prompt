@@ -42,7 +42,7 @@ def create_app(
         await registry.close()
 
     app = FastAPI(
-        title="LocalRiskInsights",
+        title="INSIGHTS@LOCAL",
         version="0.1.0",
         lifespan=lifespan,
     )
@@ -86,7 +86,7 @@ def create_app(
         index_path = static_dir / "index.html"
         if index_path.exists():
             return FileResponse(index_path)
-        return JSONResponse({"message": "LocalRiskInsights backend is running."})
+        return JSONResponse({"message": "INSIGHTS@LOCAL backend is running."})
 
     @app.get("/{full_path:path}", include_in_schema=False)
     async def serve_frontend(full_path: str):
