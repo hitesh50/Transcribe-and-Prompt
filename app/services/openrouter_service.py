@@ -169,9 +169,21 @@ class OpenRouterService:
         architecture = model_payload.get("architecture", {})
         modality = architecture.get("modality")
         if modality:
-            return modality == "text"
+            normalized = str(modality).strip().lower()
+            if normalized == "text" or normalized.endswith("->text"):
+                return True
         modalities = model_payload.get("modalities") or []
-        return not modalities or "text" in modalities
+        if modalities:
+            normalized_modalities = {str(item).strip().lower() for item in modalities}
+            if "text" in normalized_modalities:
+                return True
+
+        output_modalities = architecture.get("output_modalities") or []
+        if output_modalities:
+            normalized_outputs = {str(item).strip().lower() for item in output_modalities}
+            return "text" in normalized_outputs
+
+        return not modalities
 
     def _is_free_model(self, pricing: dict[str, Any]) -> bool:
         values = []

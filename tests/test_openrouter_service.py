@@ -48,3 +48,35 @@ async def test_openrouter_service_builds_prompt_payload(monkeypatch, test_paths:
     assert isinstance(payload, dict)
     assert payload["model"] == "qwen/qwen3.6-plus-preview:free"
     assert payload["messages"][0]["role"] == "system"
+
+
+def test_openrouter_service_accepts_text_output_modalities(test_paths: dict[str, Path]) -> None:
+    manager = SettingsManager(
+        config_path=test_paths["config_path"],
+        env_path=test_paths["env_path"],
+    )
+    service = OpenRouterService(manager)
+
+    assert service._supports_text(
+        {
+            "architecture": {
+                "modality": "text+image+video->text",
+                "output_modalities": ["text"],
+            }
+        }
+    )
+    assert service._supports_text(
+        {
+            "architecture": {
+                "modality": "text->text",
+            }
+        }
+    )
+    assert not service._supports_text(
+        {
+            "architecture": {
+                "modality": "text->image",
+                "output_modalities": ["image"],
+            }
+        }
+    )
